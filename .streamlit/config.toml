@@ -1,0 +1,14 @@
+[theme]
+base="dark"
+primaryColor="#4a7fa7"
+showSidebarBorder=true
+sidebar.backgroundColor="#0a1931"
+textColor="#f6fafd"
+linkColor="#0D47A1"
+linkUnderline=true
+baseRadius="0.75rem"
+buttonRadius="full"
+borderColor="#b3cfe5"
+dataframeBorderColor="#90CAF9"
+dataframeHeaderBackgroundColor="#E3F2FD"
+showWidgetBorder=true
