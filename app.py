@@ -27,9 +27,7 @@ if not firebase_admin._apps:
                 "client_x509_cert_url": st.secrets["client_x509_cert_url"],
                 "universe_domain": st.secrets["universe_domain"]
             }
-
             cred = credentials.Certificate(firebase_credentials)
-
         firebase_admin.initialize_app(cred)
 
     except Exception as e:
@@ -211,10 +209,28 @@ with st.form("survey_form"):
             "Как часто вы сталкиваетесь с недостоверной информацией?",
             1, 10, 5
         )
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.caption("1 — Никогда")
+        with col2:
+            st.markdown(
+                "<div style='text-align:right'>10 — Всегда</div>",
+                unsafe_allow_html=True
+            )
+
         distinguish = st.slider(
             "Насколько легко отличить достоверную информацию от недостоверной?",
             1, 10, 5
         )
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.caption("1 — Очень легко")
+        with col2:
+            st.markdown(
+                "<div style='text-align:right'>10 — Очень сложно</div>",
+                unsafe_allow_html=True
+            )
+
         media_literacy = st.radio(
             "Нужно ли обучать медиаграмотности в школах и вузах?",
             ["Да", "Нет", "Затрудняюсь ответить"]
@@ -223,6 +239,15 @@ with st.form("survey_form"):
             "Насколько научно-популярный контент влияет на ваше мировоззрение?",
             1, 10, 5
         )
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.caption("1 — Не влияет")
+        with col2:
+            st.markdown(
+                "<div style='text-align:right'>10 — Максимально влияет</div>",
+                unsafe_allow_html=True
+            )
+
         comment = st.text_area("Ваш комментарий")
 
     submitted = st.form_submit_button("Отправить ответы")
@@ -345,17 +370,13 @@ if st.checkbox("Показать аналитику"):
             avg_trust = df[trust_cols].mean().mean()
             st.subheader("Средний уровень доверия")
             st.metric("Среднее значение", round(avg_trust, 2))
-
             st.metric(
                 "Среднее время в интернете",
                 round(df["internet_hours"].mean(), 1)
             )
 
             source_means = df[trust_cols].mean().reset_index()
-            source_means.columns = [
-                "Источник",
-                "Среднее доверие"
-            ]
+            source_means.columns = ["Источник", "Среднее доверие"]
             source_means["Источник"] = (
                 source_means["Источник"]
                 .str.replace("trust_", "", regex=False)
@@ -372,10 +393,7 @@ if st.checkbox("Показать аналитику"):
         topic_cols = [c for c in df.columns if c.startswith("topic_")]
         if topic_cols:
             topic_means = df[topic_cols].mean().reset_index()
-            topic_means.columns = [
-                "Тема",
-                "Средний интерес"
-            ]
+            topic_means.columns = ["Тема", "Средний интерес"]
             topic_means["Тема"] = (
                 topic_means["Тема"]
                 .str.replace("topic_", "", regex=False)
