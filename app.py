@@ -9,21 +9,27 @@ import os
 # ---------- Firebase ----------
 if not firebase_admin._apps:
     try:
-        firebase_credentials = {
-            "type": st.secrets["type"],
-            "project_id": st.secrets["project_id"],
-            "private_key_id": st.secrets["private_key_id"],
-            "private_key": st.secrets["private_key"],
-            "client_email": st.secrets["client_email"],
-            "client_id": st.secrets["client_id"],
-            "auth_uri": st.secrets["auth_uri"],
-            "token_uri": st.secrets["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["client_x509_cert_url"],
-            "universe_domain": st.secrets["universe_domain"]
-        }
+        if os.path.exists("serviceAccountKey.json"):
+            # Локальный запуск
+            cred = credentials.Certificate("serviceAccountKey.json")
+        else:
+            # Streamlit Cloud
+            firebase_credentials = {
+                "type": st.secrets["type"],
+                "project_id": st.secrets["project_id"],
+                "private_key_id": st.secrets["private_key_id"],
+                "private_key": st.secrets["private_key"],
+                "client_email": st.secrets["client_email"],
+                "client_id": st.secrets["client_id"],
+                "auth_uri": st.secrets["auth_uri"],
+                "token_uri": st.secrets["token_uri"],
+                "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+                "client_x509_cert_url": st.secrets["client_x509_cert_url"],
+                "universe_domain": st.secrets["universe_domain"]
+            }
 
-        cred = credentials.Certificate(firebase_credentials)
+            cred = credentials.Certificate(firebase_credentials)
+
         firebase_admin.initialize_app(cred)
 
     except Exception as e:
@@ -262,12 +268,76 @@ if st.checkbox("Показать аналитику"):
         st.info("Пока нет ответов.")
     else:
         df = pd.DataFrame(data)
+        csv = df.to_csv(index=False).encode("utf-8-sig")
+
+        st.download_button(
+            label="Скачать ответы CSV",
+            data=csv,
+            file_name="survey_results.csv",
+            mime="text/csv"
+        )
+        base_cols = [
+            "age",
+            "gender",
+            "education",
+            "occupation",
+            "internet_hours"
+        ]
+        source_cols = sorted([c for c in df.columns if c.startswith("source_")])
+        topic_cols = sorted([c for c in df.columns if c.startswith("topic_")])
+        fact_cols = sorted([c for c in df.columns if c.startswith("fact_")])
+        trust_cols = sorted([c for c in df.columns if c.startswith("trust_")])
+        other_cols = [
+            "misinformation",
+            "distinguish",
+            "media_literacy",
+            "influence",
+            "comment",
+            "timestamp"
+        ]
+        final_cols = (
+                base_cols
+                + source_cols
+                + topic_cols
+                + fact_cols
+                + trust_cols
+                + other_cols
+        )
+        df = df[final_cols]
 
         st.subheader("Количество респондентов")
         st.metric("Всего ответов", len(df))
 
-        st.subheader("Первые записи")
-        st.dataframe(df.head(20))
+        with st.container(border=True):
+            st.subheader("Распределение возраста")
+            fig_age = px.histogram(
+                df,
+                x="age",
+                nbins=15,
+                title="Возраст респондентов"
+            )
+            st.plotly_chart(
+                fig_age,
+                use_container_width=True
+            )
+
+        df_display = df.copy()
+        rename_dict = {}
+        for col in df_display.columns:
+            if col.startswith("topic_"):
+                rename_dict[col] = col.replace("topic_", "")
+
+            elif col.startswith("fact_"):
+                rename_dict[col] = col.replace("fact_", "")
+
+        df_display = df_display.rename(columns=rename_dict)
+        with st.container(border=False):
+            st.subheader("Первые записи")
+            st.dataframe(
+                df_display.head(20),
+                use_container_width=True,
+                hide_index=True
+            )
 
         trust_cols = [c for c in df.columns if c.startswith("trust_")]
 
@@ -276,20 +346,20 @@ if st.checkbox("Показать аналитику"):
             st.subheader("Средний уровень доверия")
             st.metric("Среднее значение", round(avg_trust, 2))
 
-            trust_values = df[trust_cols].melt(
-                value_name="Доверие"
+            st.metric(
+                "Среднее время в интернете",
+                round(df["internet_hours"].mean(), 1)
             )
-
-            fig = px.histogram(
-                trust_values,
-                x="Доверие",
-                nbins=10,
-                title="Распределение уровня доверия"
-            )
-            st.plotly_chart(fig, use_container_width=True)
 
             source_means = df[trust_cols].mean().reset_index()
-            source_means.columns = ["Источник", "Среднее доверие"]
+            source_means.columns = [
+                "Источник",
+                "Среднее доверие"
+            ]
+            source_means["Источник"] = (
+                source_means["Источник"]
+                .str.replace("trust_", "", regex=False)
+            )
 
             fig2 = px.bar(
                 source_means,
@@ -302,7 +372,14 @@ if st.checkbox("Показать аналитику"):
         topic_cols = [c for c in df.columns if c.startswith("topic_")]
         if topic_cols:
             topic_means = df[topic_cols].mean().reset_index()
-            topic_means.columns = ["Тема", "Средний интерес"]
+            topic_means.columns = [
+                "Тема",
+                "Средний интерес"
+            ]
+            topic_means["Тема"] = (
+                topic_means["Тема"]
+                .str.replace("topic_", "", regex=False)
+            )
 
             fig3 = px.bar(
                 topic_means,

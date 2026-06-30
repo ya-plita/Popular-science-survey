@@ -10,5 +10,5 @@ baseRadius="0.75rem"
 buttonRadius="full"
 borderColor="#b3cfe5"
 dataframeBorderColor="#90CAF9"
-dataframeHeaderBackgroundColor="#E3F2FD"
+dataframeHeaderBackgroundColor="#000000"
 showWidgetBorder=true
