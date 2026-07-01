@@ -346,13 +346,7 @@ if st.checkbox("Показать аналитику"):
             age_groups = pd.cut(
                 df["age"],
                 bins=[0, 17, 24, 34, 44, 100],
-                labels=[
-                    "< 18 лет",
-                    "18–24 года",
-                    "25–34 года",
-                    "35–44 года",
-                    "45 лет и старше"
-                ]
+                labels=["< 18 лет", "18–24 года", "25–34 года", "35–44 года", "45 лет и старше"]
             )
 
             age_distribution = (
@@ -361,25 +355,11 @@ if st.checkbox("Показать аналитику"):
                 .sort_index()
                 .reset_index()
             )
-
-            age_distribution.columns = [
-                "Возрастная группа",
-                "Количество"
-            ]
-
+            age_distribution.columns = ["Возрастная группа", "Количество"]
             total = age_distribution["Количество"].sum()
+            age_distribution["Доля"] = (age_distribution["Количество"] / total * 100).round(1)
 
-            age_distribution["Доля"] = (
-                    age_distribution["Количество"] / total * 100
-            ).round(1)
-
-            colors = [
-                "#4a7fa7",
-                "#6fa8dc",
-                "#8ecae6",
-                "#219ebc",
-                "#90CAF9"
-            ]
+            colors = ["#4a7fa7", "#6fa8dc", "#8ecae6", "#219ebc", "#90CAF9"]
 
             fig_age = px.pie(
                 age_distribution,
@@ -401,41 +381,36 @@ if st.checkbox("Показать аналитику"):
                 showlegend=False
             )
 
-            col1, col2 = st.columns([3, 2])
+            col1, col2 = st.columns([2.5, 1.5])
 
             with col1:
-                st.plotly_chart(
-                    fig_age,
-                    use_container_width=True
-                )
+                st.plotly_chart(fig_age, use_container_width=True)
 
             with col2:
-                st.markdown("#### Возрастные группы")
+                # --- ЗАГОЛОВОК ЛЕГЕНДЫ ---
+                st.markdown('<div style="margin-top:40px;">', unsafe_allow_html=True)
+                st.markdown("""
+                        <div style="display:flex; align-items:center; gap:60px; margin-bottom:12px;">
+                            <strong style="font-size:16px; min-width:120px;">Возраст</strong>
+                            <strong style="font-size:16px;">Количество</strong>
+                        </div>
+                        """, unsafe_allow_html=True)
 
                 for i, row in age_distribution.iterrows():
                     st.markdown(
                         f"""
-                        <div style="
-                            display:flex;
-                            justify-content:space-between;
-                            align-items:center;
-                            margin-bottom:10px;
-                        ">
-                            <span>
-                                <span style="
-                                    color:{colors[i]};
-                                    font-size:22px;
-                                ">●</span>
-                                {row['Возрастная группа']}
-                            </span>
-
-                            <span>
-                                {row['Количество']} ({row['Доля']}%)
-                            </span>
-                        </div>
-                        """,
+                                <div style="display:flex; align-items:center; gap:60px; margin-bottom:8px;">
+                                    <span style="min-width:120px;">
+                                        <span style="color:{colors[i]}; font-size:22px;">●</span>
+                                        {row['Возрастная группа']}
+                                    </span>
+                                    <span>{row['Количество']} ({row['Доля']}%)</span>
+                                </div>
+                                """,
                         unsafe_allow_html=True
                     )
+
+                st.markdown('</div>', unsafe_allow_html=True)
 
         df_display = df.copy()
         rename_dict = {}
