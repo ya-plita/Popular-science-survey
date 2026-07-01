@@ -231,10 +231,10 @@ with st.form("survey_form"):
         )
         col1, col2 = st.columns([1, 1])
         with col1:
-            st.markdown("1 — Очень легко")
+            st.markdown("1 — Очень сложно")
         with col2:
             st.markdown(
-                "<div style='text-align:right'>10 — Очень сложно</div>",
+                "<div style='text-align:right'>10 — Очень легко</div>",
                 unsafe_allow_html=True
             )
 
@@ -342,36 +342,38 @@ if st.checkbox("Показать аналитику"):
 
         with st.container(border=True):
             st.subheader("Распределение возраста")
-
+            age_labels = ["< 18 лет", "18–24 года", "25–34 года", "35–44 года", "45 лет и старше"]
             age_groups = pd.cut(
                 df["age"],
                 bins=[0, 17, 24, 34, 44, 100],
-                labels=["< 18 лет", "18–24 года", "25–34 года", "35–44 года", "45 лет и старше"]
+                labels=age_labels
             )
 
             age_distribution = (
                 age_groups
                 .value_counts()
-                .sort_index()
+                .reindex(age_labels, fill_value=0)
                 .reset_index()
             )
             age_distribution.columns = ["Возрастная группа", "Количество"]
             total = age_distribution["Количество"].sum()
             age_distribution["Доля"] = (age_distribution["Количество"] / total * 100).round(1)
 
-            colors = ["#4a7fa7", "#6fa8dc", "#8ecae6", "#219ebc", "#90CAF9"]
+            colors = ["#207be1", "#48af66", "#eda825", "#8464c1", "#e75462"]
 
             fig_age = px.pie(
                 age_distribution,
                 names="Возрастная группа",
                 values="Количество",
                 title="Возрастные группы респондентов",
-                color_discrete_sequence=colors
+                color_discrete_sequence=colors,
+                category_orders={"Возрастная группа": age_labels}
             )
 
             fig_age.update_traces(
                 textposition="inside",
-                textinfo="percent"
+                textinfo="percent",
+                textfont=dict(color="white", size=20)
             )
 
             fig_age.update_layout(
