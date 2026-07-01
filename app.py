@@ -46,6 +46,13 @@ st.markdown("""
         #1a3d63 100%
     );
 }
+
+/* Подписи ко всем элементам ввода */
+[data-testid="stWidgetLabel"] p {
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+}
+
 [data-testid="stNumberInputContainer"] {
     background: linear-gradient(
         270deg,
@@ -83,8 +90,8 @@ textarea {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("Потребление научно-популярного контента")
-st.caption("Источники, проверка фактов и доверие")
+st.title("Потребление научно-популярного контента. Источники, проверка фактов, доверие")
+st.caption("Анонимный опрос из 50 вопросов о вашем отношении к научпоп контенту")
 
 with st.sidebar:
     st.title("Информация")
@@ -133,16 +140,16 @@ topic_questions = [
 ]
 
 fact_questions = [
-    "Проверяю автора публикации",
-    "Проверяю дату публикации",
-    "Сравниваю информацию в нескольких источниках",
-    "Ищу первоисточник",
-    "Проверяю ссылки на исследования",
-    "Проверяю статистические данные",
-    "Ищу мнение специалистов",
-    "Использую научные статьи",
-    "Проверяю изображения",
-    "Проверяю видеоматериалы"
+    "26. Проверяю автора публикации",
+    "27. Проверяю дату публикации",
+    "28. Сравниваю информацию в нескольких источниках",
+    "29. Ищу первоисточник",
+    "30. Проверяю ссылки на исследования",
+    "31. Проверяю статистические данные",
+    "32. Ищу мнение специалистов",
+    "33. Использую научные статьи",
+    "34. Проверяю изображения",
+    "35. Проверяю видеоматериалы"
 ]
 
 trust_questions = [
@@ -155,26 +162,26 @@ with st.form("survey_form"):
 
     with st.container(border=True):
         st.header("Раздел 1. Общая информация")
-        age = st.number_input("Возраст", 14, 100, 18)
+        age = st.number_input("1. Возраст", 14, 100, 18)
         gender = st.radio(
-            "Пол",["Мужской", "Женский", "Предпочитаю не указывать"]
+            "2. Пол",["Мужской", "Женский", "Предпочитаю не указывать"]
         )
         education = st.selectbox(
-            "Уровень образования",["Школа", "Среднее специальное", "Неоконченное высшее", "Высшее", "Другое"]
+            "3. Уровень образования",["Школа", "Среднее специальное", "Неоконченное высшее", "Высшее", "Другое"]
         )
         occupation = st.selectbox(
-            "Род деятельности",["Учащийся/студент", "Работаю по найму", "Самозанятый", "Предприниматель", "Временно не работаю", "Другое"]
+            "4. Род деятельности",["Учащийся/студент", "Работаю по найму", "Самозанятый", "Предприниматель", "Временно не работаю", "Другое"]
         )
         internet_hours = st.slider(
-            "Сколько часов в день вы проводите в интернете?",0,24,4
+            "5. Сколько часов в день вы проводите в интернете?",0,24,4
         )
 
     with st.container(border=True):
         st.header("Раздел 2. Использование источников")
         source_answers = {}
-        for q in source_questions:
+        for i, q in enumerate(source_questions, start=6):
             source_answers[q] = st.radio(
-                f"Насколько часто вы используете: {q}?",
+                f"{i}. Насколько часто вы используете: {q}?",
                 frequency_options,
                 horizontal=True,
                 key=f"src_{q}"
@@ -183,35 +190,35 @@ with st.form("survey_form"):
     with st.container(border=True):
         st.header("Раздел 3. Интерес к научным темам")
         topic_answers = {}
-        for q in topic_questions:
-            topic_answers[q] = st.slider(f"Интерес к теме: {q}", 1, 5, 3)
+        for i, q in enumerate(topic_questions, start=16):
+            topic_answers[q] = st.slider(f"{i}. Интерес к теме: {q}", 1, 5, 3)
 
     with st.container(border=True):
         st.header("Раздел 4. Проверка фактов")
         fact_answers = {}
-        for q in fact_questions:
+        for i, q in enumerate(fact_questions, start=26):
             fact_answers[q] = st.radio(
                 q,
                 fact_options,
                 horizontal=True,
-                key=f"fact_{q}"
+                key=f"{i} fact_{q}"
             )
 
     with st.container(border=True):
         st.header("Раздел 5. Доверие к источникам")
         trust_answers = {}
-        for q in trust_questions:
-            trust_answers[q] = st.slider(f"Уровень доверия: {q}", 1, 10, 5)
+        for i, q in enumerate(trust_questions, start=36):
+            trust_answers[q] = st.slider(f"{i}. Уровень доверия: {q}", 1, 10, 5)
 
     with st.container(border=True):
         st.header("Раздел 6. Итоговое мнение")
         misinformation = st.slider(
-            "Как часто вы сталкиваетесь с недостоверной информацией?",
+            "46. Как часто вы сталкиваетесь с недостоверной информацией?",
             1, 10, 5
         )
         col1, col2 = st.columns([1, 1])
         with col1:
-            st.caption("1 — Никогда")
+            st.markdown("1 — Никогда")
         with col2:
             st.markdown(
                 "<div style='text-align:right'>10 — Всегда</div>",
@@ -219,12 +226,12 @@ with st.form("survey_form"):
             )
 
         distinguish = st.slider(
-            "Насколько легко отличить достоверную информацию от недостоверной?",
+            "47. Насколько легко отличить достоверную информацию от недостоверной?",
             1, 10, 5
         )
         col1, col2 = st.columns([1, 1])
         with col1:
-            st.caption("1 — Очень легко")
+            st.markdown("1 — Очень легко")
         with col2:
             st.markdown(
                 "<div style='text-align:right'>10 — Очень сложно</div>",
@@ -232,23 +239,23 @@ with st.form("survey_form"):
             )
 
         media_literacy = st.radio(
-            "Нужно ли обучать медиаграмотности в школах и вузах?",
+            "48. Нужно ли обучать медиаграмотности в школах и вузах?",
             ["Да", "Нет", "Затрудняюсь ответить"]
         )
         influence = st.slider(
-            "Насколько научно-популярный контент влияет на ваше мировоззрение?",
+            "49. Насколько научно-популярный контент влияет на ваше мировоззрение?",
             1, 10, 5
         )
         col1, col2 = st.columns([1, 1])
         with col1:
-            st.caption("1 — Не влияет")
+            st.markdown("1 — Не влияет")
         with col2:
             st.markdown(
                 "<div style='text-align:right'>10 — Максимально влияет</div>",
                 unsafe_allow_html=True
             )
 
-        comment = st.text_area("Ваш комментарий")
+        comment = st.text_area("50. Ваш комментарий")
 
     submitted = st.form_submit_button("Отправить ответы")
 
@@ -335,16 +342,100 @@ if st.checkbox("Показать аналитику"):
 
         with st.container(border=True):
             st.subheader("Распределение возраста")
-            fig_age = px.histogram(
-                df,
-                x="age",
-                nbins=15,
-                title="Возраст респондентов"
+
+            age_groups = pd.cut(
+                df["age"],
+                bins=[0, 17, 24, 34, 44, 100],
+                labels=[
+                    "< 18 лет",
+                    "18–24 года",
+                    "25–34 года",
+                    "35–44 года",
+                    "45 лет и старше"
+                ]
             )
-            st.plotly_chart(
-                fig_age,
-                use_container_width=True
+
+            age_distribution = (
+                age_groups
+                .value_counts()
+                .sort_index()
+                .reset_index()
             )
+
+            age_distribution.columns = [
+                "Возрастная группа",
+                "Количество"
+            ]
+
+            total = age_distribution["Количество"].sum()
+
+            age_distribution["Доля"] = (
+                    age_distribution["Количество"] / total * 100
+            ).round(1)
+
+            colors = [
+                "#4a7fa7",
+                "#6fa8dc",
+                "#8ecae6",
+                "#219ebc",
+                "#90CAF9"
+            ]
+
+            fig_age = px.pie(
+                age_distribution,
+                names="Возрастная группа",
+                values="Количество",
+                title="Возрастные группы респондентов",
+                color_discrete_sequence=colors
+            )
+
+            fig_age.update_traces(
+                textposition="inside",
+                textinfo="percent"
+            )
+
+            fig_age.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="white"),
+                showlegend=False
+            )
+
+            col1, col2 = st.columns([3, 2])
+
+            with col1:
+                st.plotly_chart(
+                    fig_age,
+                    use_container_width=True
+                )
+
+            with col2:
+                st.markdown("#### Возрастные группы")
+
+                for i, row in age_distribution.iterrows():
+                    st.markdown(
+                        f"""
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            margin-bottom:10px;
+                        ">
+                            <span>
+                                <span style="
+                                    color:{colors[i]};
+                                    font-size:22px;
+                                ">●</span>
+                                {row['Возрастная группа']}
+                            </span>
+
+                            <span>
+                                {row['Количество']} ({row['Доля']}%)
+                            </span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
         df_display = df.copy()
         rename_dict = {}
@@ -368,8 +459,7 @@ if st.checkbox("Показать аналитику"):
 
         if trust_cols:
             avg_trust = df[trust_cols].mean().mean()
-            st.subheader("Средний уровень доверия")
-            st.metric("Среднее значение", round(avg_trust, 2))
+            st.metric("Средний уровень доверия", round(avg_trust, 2))
             st.metric(
                 "Среднее время в интернете",
                 round(df["internet_hours"].mean(), 1)
