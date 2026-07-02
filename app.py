@@ -10,10 +10,8 @@ import os
 if not firebase_admin._apps:
     try:
         if os.path.exists("serviceAccountKey.json"):
-            # Локальный запуск
             cred = credentials.Certificate("serviceAccountKey.json")
         else:
-            # Streamlit Cloud
             firebase_credentials = {
                 "type": st.secrets["type"],
                 "project_id": st.secrets["project_id"],
@@ -95,26 +93,21 @@ st.caption("Анонимный опрос из 50 вопросов о вашем
 
 with st.sidebar:
     st.title("Информация")
-
     st.markdown("""
     **Тема исследования**
 
     Потребление научно-популярного контента:
     источники, проверка фактов и доверие.
     """)
-
     st.divider()
-
     st.markdown("""
-    **Навигация**
-    
-    Раздел 1. Общая информация  
-    Раздел 2. Использование источников  
-    Раздел 3. Интерес к научным темам  
-    Раздел 4. Проверка фактов  
-    Раздел 5. Доверие к источникам  
-    Раздел 6. Итоговое мнение  
-    """)
+    - <a href="#section1">Раздел 1. Общая информация</a>
+    - <a href="#section2">Раздел 2. Использование источников</a>
+    - <a href="#section3">Раздел 3. Интерес к научным темам</a>
+    - <a href="#section4">Раздел 4. Проверка фактов</a>
+    - <a href="#section5">Раздел 5. Доверие к источникам</a>
+    - <a href="#section6">Раздел 6. Итоговое мнение</a>
+    """, unsafe_allow_html=True)
     st.divider()
     st.markdown("""
     **Технологии**
@@ -159,7 +152,9 @@ trust_questions = [
 ]
 
 with st.form("survey_form"):
-
+    st.markdown("""
+    <div id="section1"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 1. Общая информация")
         age = st.number_input("1. Возраст", 14, 100, 18)
@@ -176,6 +171,9 @@ with st.form("survey_form"):
             "5. Сколько часов в день вы проводите в интернете?",0,24,4
         )
 
+    st.markdown("""
+    <div id="section2"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 2. Использование источников")
         source_answers = {}
@@ -186,13 +184,18 @@ with st.form("survey_form"):
                 horizontal=True,
                 key=f"src_{q}"
             )
-
+    st.markdown("""
+    <div id="section3"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 3. Интерес к научным темам")
         topic_answers = {}
         for i, q in enumerate(topic_questions, start=16):
             topic_answers[q] = st.slider(f"{i}. Интерес к теме: {q}", 1, 5, 3)
 
+    st.markdown("""
+    <div id="section4"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 4. Проверка фактов")
         fact_answers = {}
@@ -204,12 +207,18 @@ with st.form("survey_form"):
                 key=f"{i} fact_{q}"
             )
 
+    st.markdown("""
+    <div id="section5"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 5. Доверие к источникам")
         trust_answers = {}
         for i, q in enumerate(trust_questions, start=36):
             trust_answers[q] = st.slider(f"{i}. Уровень доверия: {q}", 1, 10, 5)
 
+    st.markdown("""
+    <div id="section6"></div>
+    """, unsafe_allow_html=True)
     with st.container(border=True):
         st.header("Раздел 6. Итоговое мнение")
         misinformation = st.slider(
